@@ -1,8 +1,10 @@
 import numpy as np
-
+from resizeimage import resizeimage
+import cv
 
 alphas = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
 hiddenSize = 32
+
 
 
 # compute sigmoid nonlinearity
