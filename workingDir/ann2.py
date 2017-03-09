@@ -1,5 +1,8 @@
 from PIL import Image
+import cv
 
-img = Image.open('testImage.png').convert('L')
+img = Image.open('trolltunga.jpg').convert('L')
 newImg = img.resize((8,8))
-img.show();
+gray = cv.cvtColor(img, cv.COLOR_BGRA2GRAY)
+cv.imwrite('graytest.jpg',gray)
+
