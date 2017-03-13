@@ -89,7 +89,7 @@ plt.show()
 
 #create a backprop trainer
 trainer = BackpropTrainer(net, dataset=trainData, momentum=0.1, learningrate=0.01, verbose=True)
-
+NetworkWriter.writeToFile(net, 'dig.xml')
 #set the epochs
 trainer.trainEpochs(50)
 
@@ -100,4 +100,4 @@ print 'Percent Accuracy Test dataset: ', percentError(trainer.testOnClassData(
 
 trainer.train()
 
-NetworkWriter.writeToFile(net, 'dig.xml')
+
