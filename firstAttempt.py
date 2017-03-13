@@ -31,25 +31,35 @@ def flatten(x):
 
 # pass image to store image a store it as t
 t = loadImage('shanesC.png')
-
+#load the data and store
 digits = load_digits()
+
+#set y as target
 X, y = digits.data, digits.target
-# net = buildNetwork(len(t), len(t), 1)
+
+
+#add the contents digits to a dataset 
 daSet = ClassificationDataSet(len(t), 1)
 for k in xrange(len(X)):
     daSet.addSample(X.ravel()[k], y.ravel()[k])
 
+#split the dataset into training and testing
 testData, trainData = daSet.splitWithProportion(0.25)
 
+#convert the data to binary
 trainData._convertToOneOfMany()
 testData._convertToOneOfMany()
-# initialize a feed foward network
 
+#check for the save file and load
 if os.path.isfile('dig.xml'):
     net = NetworkReader.readFrom('dig.xml')
 else:
     # net = FeedForwardNetwork()
     net = buildNetwork(trainData.indim, 64, trainData.outdim, outclass=SoftmaxLayer)
+
+	
+################# this is from an old iteration will delete	
+	
 # create layers for FFN
 # inLayer = LinearLayer(len(t)) #sets up the number of nodes based on 'length' of the loaded image
 # hiddenLayer = SigmoidLayer(len(t))
@@ -69,20 +79,21 @@ else:
 
 # net.sortModules()
 
-print net
 
-print (X.shape)
 
+#a test to show the digits in the dataset, try changing the 2 and it will blwo your mind
 plt.gray()
 plt.matshow(digits.images[2])
 plt.show()
 
-# for inpt, target in daSet:
-# print inpt, target
 
+#create a backprop trainer
 trainer = BackpropTrainer(net, dataset=trainData, momentum=0.1, learningrate=0.01, verbose=True)
 
-trainer.trainEpochs(200)
+#set the epochs
+trainer.trainEpochs(50)
+
+#print results
 print 'Percent Accuracy Test dataset: ', percentError(trainer.testOnClassData(
     dataset=testData)
     , testData['class'])
