@@ -10,7 +10,8 @@ from pybrain.tools.xml.networkreader import NetworkReader
 import os
 import matplotlib.pyplot as plt
 import cv2
-
+import numpy as np
+NUM_EPOCHS = 50
 
 # read image with cv2
 def loadImage(path):
@@ -38,7 +39,7 @@ digits = load_digits()
 X, y = digits.data, digits.target
 
 
-#add the contents digits to a dataset 
+#add the contents of digits to a dataset
 daSet = ClassificationDataSet(len(t), 1)
 for k in xrange(len(X)):
     daSet.addSample(X.ravel()[k], y.ravel()[k])
@@ -46,18 +47,24 @@ for k in xrange(len(X)):
 #split the dataset into training and testing
 testData, trainData = daSet.splitWithProportion(0.25)
 
-#convert the data to binary
+#convert the data into 10 separate digits
 trainData._convertToOneOfMany()
 testData._convertToOneOfMany()
+
 
 #check for the save file and load
 if os.path.isfile('dig.xml'):
     net = NetworkReader.readFrom('dig.xml')
+    net.sorted = False
+    net.sortModules()
 else:
     # net = FeedForwardNetwork()
-    net = buildNetwork(trainData.indim, 64, trainData.outdim, outclass=SoftmaxLayer)
+    net = buildNetwork(trainData.indim, 155, 10,hiddenclass=SigmoidLayer, outclass=SoftmaxLayer)
 
-	
+# create a backprop trainer
+trainer = BackpropTrainer(net, dataset=trainData, momentum=0.3, learningrate=0.3,weightdecay= 0.01, verbose=True)
+
+
 ################# this is from an old iteration will delete	
 	
 # create layers for FFN
@@ -77,27 +84,25 @@ else:
 # net.addConnection(in_to_hidden)
 # net.addConnection(hidden_to_out)
 
-# net.sortModules()
 
 
 
 #a test to show the digits in the dataset, try changing the 2 and it will blwo your mind
-plt.gray()
+"""plt.gray()
 plt.matshow(digits.images[2])
-plt.show()
+plt.show()"""
 
 
-#create a backprop trainer
-trainer = BackpropTrainer(net, dataset=trainData, momentum=0.1, learningrate=0.01, verbose=True)
-NetworkWriter.writeToFile(net, 'dig.xml')
+
+
 #set the epochs
-trainer.trainEpochs(50)
+trainer.trainEpochs(2000)
+NetworkWriter.writeToFile(net, 'dig.xml')
 
 #print results
-print 'Percent Accuracy Test dataset: ', percentError(trainer.testOnClassData(
+print 'Percent Error dataset: ', percentError(trainer.testOnClassData(
     dataset=testData)
     , testData['class'])
 
-trainer.train()
-
+exit(0)
 
