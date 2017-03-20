@@ -3,58 +3,71 @@ from pybrain.utilities import percentError
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure.modules import SoftmaxLayer
 from pybrain.tools.shortcuts import buildNetwork
-from pybrain.structure import FeedForwardNetwork, LinearLayer, SigmoidLayer, FullConnection
+from pybrain.structure import SigmoidLayer
+from skimage.measure import compare_ssim
 from sklearn.datasets import load_digits
 from pybrain.tools.xml.networkwriter import NetworkWriter
 from pybrain.tools.xml.networkreader import NetworkReader
+from sklearn.metrics import mean_squared_error
 import os
-from skimage import img_as_int, img_as_uint, img_as_bool, img_as_float
-from PIL import Image
 import numpy as np
-from sklearn import datasets
-from skimage.feature import hog
-from sklearn.svm import LinearSVC
-import cv2
-
+from PIL import Image, ImageChops
 NUM_EPOCHS = 50
 
-dataset = datasets.fetch_mldata("MNIST Original")
-features = np.array(dataset.data, 'int16')
-labels = np.array(dataset.target, 'int')
+def correlation_coefficient(patch1, patch2):
+    product = np.mean((patch1 - patch1.mean()) * (patch2 - patch2.mean()))
+    stds = patch1.std() * patch2.std()
+    if stds == 0:
+        return 0
+    else:
+        product /= stds
+        return product
 
-list_hog_fd = []
-for feature in features:
-    fd = hog(feature.reshape((28, 28)), orientations=9, pixels_per_cell=(14, 14), cells_per_block=(1, 1), visualise=False)
-    list_hog_fd.append(fd)
-hog_features = np.array(list_hog_fd, 'float64')
-# read image with PIL.Image & load it, resize, convert to grayscale & load it into an array
-img = Image.open("images/2ii.png").resize((8,8)).convert('L')
-image = np.array(img)
-clf = LinearSVC()
-clf.fit(hog_features, labels)
-#print img_as_int(image)
-#print img_as_uint(image)
+
+# open image resize & grayscale
+ima5 = Image.open("images/2.png").resize((8, 8)).convert('L')
+image5 = np.array(ima5).astype(float)
+
+
 #load the data and store
 digits = load_digits()
 
-#set y as target output
-X, y = digits.images , digits.target
+print ImageChops.difference(ima5, ima5).getbbox()
 
-image,ctrs, hier = cv2.findContours(image,)
+#set up lists
+mseList = ([])
+ssimList = ([])
+imChopsDiff = ([])
+ccList = ([])
 
-ima5 = Image.open("images/3.png").resize((28,28)).convert('L')
-image5 = np.array(ima5)
-#add the contents of digits to a dataset for supervised classification training
+# the 'Mean Squared Error' between the two images is the
+	# sum of the squared difference between the two images;
+	# NOTE: the two images must have the same dimension
+
+
+i = 0
+while i < len(digits.images):
+    #mseList.append([i])
+    mseList.append([mean_squared_error(image5,digits.images[i]), i])
+    compare_ssim(image5,digits.images[i]) #    Input images must have the same dtype
+    ccList.append((correlation_coefficient(image5, digits.images[i]),i))
+    i = i+1
+print mseList
+print sorted(mseList)
+
+print ssimList
+
+print sorted(ccList)
+
+#set y as target
+X, y = digits.data, digits.target
+
+
+#add the contents of digits to a dataset
 daSet = ClassificationDataSet(64, 1)
 for k in xrange(len(X)):
     daSet.addSample(X.ravel()[k], y.ravel()[k])
 
-print "digits.images[0]"
-d = digits.images[0]
-print d
-
-print img_as_float(image)
-#print img_as_int(d)
 #split the dataset into training and testing
 testData, trainData = daSet.splitWithProportion(0.40)
 
@@ -62,34 +75,26 @@ testData, trainData = daSet.splitWithProportion(0.40)
 trainData._convertToOneOfMany()
 testData._convertToOneOfMany()
 
-#already has inputs and connections/synapses
-net = buildNetwork(64, 37,10, hiddenclass=SigmoidLayer, outclass=SoftmaxLayer, bias=True)
 
-#for inpt, target in daSet:
-#    print target, inpt
+#check for the save file and load
+if os.path.isfile('dig.xml'):
+    net = NetworkReader.readFrom('dig.xml')
+    net.sorted = False
+    net.sortModules()
+else:
+    # net = FeedForwardNetwork()
+    net = buildNetwork(64, 37,10, hiddenclass=SigmoidLayer, outclass=SoftmaxLayer, bias=True)
 
 # create a backprop trainer
-trainer = BackpropTrainer(net, dataset=trainData, momentum=0.1, verbose=True, weightdecay= 0.01)
+trainer = BackpropTrainer(net, dataset=trainData, momentum=0.0, learningrate=0.01,weightdecay= 0.01, verbose=True)
+
 trainer.trainUntilConvergence()
+
 print(trainData.indim)
+
 print(testData.indim)
 
-#set the epochs
-#trainer.trainEpochs(5)
 NetworkWriter.writeToFile(net, 'dig.xml')
 
-trainer.trainEpochs (50)
-print 'Percent Error on Test dataset: ' , percentError( trainer.testOnClassData (
-           dataset=testData )
-           , testData['class'] )
-
-
-#print net.activate(t)
-
-
-#print results
-#print 'Percent Error dataset: ', percentError(trainer.testOnClassData(
-#    dataset=testData)
-#    , testData['class'])
 
 exit(0)

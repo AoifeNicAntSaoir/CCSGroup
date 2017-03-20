@@ -27,6 +27,8 @@ ds.addSample((0, 1), (1,))
 ds.addSample((1, 0), (1,))
 ds.addSample((1, 1), (0,))
 
+
+
 print len(ds)
 
 for inpt, target in ds:

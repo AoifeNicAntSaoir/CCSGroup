@@ -1,4 +1,4 @@
-# Import the modules
+
 from sklearn import datasets
 from skimage.feature import hog
 from sklearn.svm import LinearSVC
@@ -9,6 +9,16 @@ import cv2
 
 # Load the dataset
 digits = datasets.load_digits()
+
+features = np.array(digits.target)
+images = np.array(digits.data, 'float64')
+
+list_hog_fd = []
+for feature in features:
+    fd = hog(feature.reshape((1,1)), orientations=9, pixels_per_cell=(14,14), cells_per_block=(1,1), visualise=False)
+    list_hog_fd.append(fd)
+
+hog_features = np.array(list_hog_fd, 'float64')
 #print(digits.keys())
 
 #   Extracting features and images from load_digits Dataset
