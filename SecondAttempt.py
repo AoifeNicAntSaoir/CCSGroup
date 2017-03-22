@@ -1,17 +1,16 @@
-from pybrain.structure import FeedForwardNetwork, FullConnection
-from pybrain.structure import LinearLayer, SigmoidLayer, SoftmaxLayer
-from pybrain.tools.xml import NetworkWriter
-from pybrain.tools.xml import NetworkReader
-from pybrain.tools.shortcuts     import buildNetwork
-from pybrain.utilities import percentError
-from pybrain.supervised.trainers import BackpropTrainer
-from pybrain.datasets import ClassificationDataSet
-from random import randint, shuffle
-from pylab import imshow
-from scipy import io, ndimage
-from numpy import *
 import os
+from random import randint, shuffle
 import matplotlib.pyplot as plt
+from numpy import *
+from pybrain.datasets import ClassificationDataSet
+from pybrain.structure import SigmoidLayer, SoftmaxLayer
+from pybrain.supervised.trainers import BackpropTrainer
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.tools.xml import NetworkReader
+from pybrain.tools.xml import NetworkWriter
+from pybrain.utilities import percentError
+from pylab import imshow
+from scipy import io
 
 
 def plot_the_num(X, Y, ca):
@@ -47,7 +46,7 @@ Y = digits['y']
 
 Y[Y == 10] = 0  # 0 has the 10th position, this line gives it the 0th position
 
-num_of_labels = unique(Y).size  # gets your 10 labels
+num_of_labels = unique(Y).size  # gets your 10 labels/outputs
 
 print('show a random number from the MNIST database')
 random_ind = randint(0, X.shape[0])  # gets a random number between 0 and the size of the X array
@@ -55,12 +54,14 @@ plot_the_num(X, Y, random_ind)
 plt.show()
 
 # build the dataset
+
 X = c_[ones(X.shape[0]), X]
+
 num_of_examples, size_of_example = X.shape
 # convert the test data to one of many (10)
 Y = convert_to_one_of_many(Y)
 
-# seperating training and test datasets
+# separating training and test data sets
 
 X1 = hstack((X, Y))
 shuffle(X1)
@@ -87,6 +88,8 @@ for i in range(0, cutoff):
 train_data.setField('input', X[0:cutoff, :])
 train_data.setField('target', Y[0:cutoff, :])
 
+#print train_data.getField(X[0:cutoff, :])
+
 for i in range(cutoff, num_of_examples):
     test_data.addSample(X[i, :], Y[i, :])
 
@@ -106,7 +109,8 @@ if os.path.isfile('dig.xml'):
     net.sortModules()
 else:
 
-    net = buildNetwork(size_of_example,size_of_example/2,num_of_labels, hiddenclass=SigmoidLayer, outclass=SoftmaxLayer)
+    net = buildNetwork(size_of_example, size_of_example / 2, num_of_labels, hiddenclass=SigmoidLayer,
+                       outclass=SoftmaxLayer)
 
     # net.sorted = False
     net.sortModules()
