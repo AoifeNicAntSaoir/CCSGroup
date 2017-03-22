@@ -1,0 +1,91 @@
+load the digits  -- line 42
+
+split the digits data into 2 parts(X,Y)
+	- MNIST data is already set up as being split into X and y
+	- set digits[X] as X, and digits[y] as y. line 44 and 45
+
+in the mnist dataset the position of digit 0 is 10. you need to reformat
+it to index 0 - line 47
+
+get the number of distinct digits - line 49
+
+-----BUILDING THE DATASET
+
+X = c_[ones[X.shape[0]), X]  --- need to understand this
+
+set number of examples to the amount of rows in X
+set size of example to amoint of columns in X
+
+Y = convert to one of many --- need to understand this
+
+-------SEPARATING THE DATASET
+
+add the X and Y arrays to a single one dimensional array -- line 66
+randomly shuffle the data -- line 67
+
+add the shuffled data back to X and Y line 69 -- learn about array splicing
+
+
+create 2 data sets. one for training and one for testing - line 79
+
+split the data into 70 % and 30% and add to training dataset and testing data set
+and give them field names of 'input' and 'target'
+			-- lines 82 - 97 (learn about array splicing)
+
+
+check if there is a network already saved and if so load it - line 106
+
+else : build a network using the buildNetwork function of pyBrain -- line 112
+
+sort the modules  (i.e. input --> middle --> output) --line 116
+
+get a random index from the size of X - -line 118
+
+get data from the X data located at the random index  --line 119
+
+line 122 -- experiment with this line
+			(it is supposed to select a random digit between 0 and 9,
+				but is currently only selecting 0 or 1 for some reason)
+
+				also no matter how well the nn is trained the prediction of the correct 
+				digit seems to be arbitrary
+
+
+get the true outputs for the target fields in the arrays - line 126
+
+how many epochs the trainer will train for. 1 epoch is one full run through the 
+feed forward and back prop networks -- line 129
+
+a for loop that loops through the epochs     - line 133
+
+	set the amount of epochs within the loop to 1 - line 135
+
+	pass the training data into the network and store  -- line 137
+	get the matrix value of the result of the training -- line 138
+
+	the accuracy of the network is aquired by getting the percentage error  --line 139
+	of the trained value vs the target value. 
+	(percentError is a numpy function which calculates percentage of differeces 
+	between matrices)
+
+	repeat the above steps for the test data -- lines 141 to 143
+
+	print the accuracy for each epoch (minus the percentage error from 100) -- line 145
+
+pass test input into the now trained network -- line 147
+
+get the highest probability of which nubmer it is -- line 149
+
+save the new network config to the file -- line 151
+
+print the predicted number
+
+
+
+
+
+
+
+
+
+
