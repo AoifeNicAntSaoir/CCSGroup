@@ -39,26 +39,34 @@ def convertToOneOfMany(Y):
 
     return newY  # load the MNIST data
 
-digits = io.loadmat('ex4data1.mat')
 
+digits = io.loadmat('ex4data1.mat')
+ig = Image.open("images/2.png").resize((28,28)).convert('L')
+#ig.show()
 # making X and Y numpy arrays
 X = digits['X']
+img = np.array(ig).astype(float)
 Y = digits['y']
+
 
 Y[Y == 10] = 0  # 0 has the 10th position, this line gives it the 0th position
 
 numOfLabels = unique(Y).size  # gets your 10 labels
 
 print('show a random number from the MNIST database')
-randomInd = randint(0, X.shape[0])  # gets a random number between 0 and the size of the X array
-plotTheNum(X, Y, randomInd)
+
+#randomInd = randint(0, X.shape[0])  # gets a random number between 0 and the size of the X array
+#plotTheNum(X, Y, randomInd)
 #plt.show()
+
 
 # build the dataset
 X = c_[ones(X.shape[0]), X]
-
-
 numOfExamples, sizeOfExample = X.shape
+numOfExamples1, sizeOfExample1 = img.shape
+print X.shape
+print Y.shape
+print img.shape
 # convert the test data to one of many (10)
 Y = convertToOneOfMany(Y)
 
@@ -66,19 +74,19 @@ Y = convertToOneOfMany(Y)
 
 X1 = hstack((X, Y)) # puts into a 1D array
 shuffle(X1) # shuffled array
-
+img1 = hstack(img)
+shuffle(img1)
 X = X1[:, 0:sizeOfExample]
 Y = X1[:, sizeOfExample: X1.shape[1]]
-
 # add the contents of digits to a dataset
 #daSet = ClassificationDataSet(sizeOfExample, numOfLabels)
 #for k in xrange(len(X)):
 #    daSet.addSample(X.ravel()[k], Y.ravel()[k])
 
 #testData, trainData = daSet.splitWithProportion(0.25)
-
-trainData = ClassificationDataSet(sizeOfExample, numOfLabels)
-testData = ClassificationDataSet(sizeOfExample, numOfLabels)
+print sizeOfExample
+trainData = ClassificationDataSet(sizeOfExample+1, numOfLabels)
+testData = ClassificationDataSet(sizeOfExample+1, numOfLabels)
 
 dataSplit = int(numOfExamples * 0.7)
 
