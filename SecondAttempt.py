@@ -11,6 +11,7 @@ from pybrain.tools.xml import NetworkWriter
 from pybrain.utilities import percentError
 from pylab import imshow
 from scipy import io
+import scipy
 
 
 def plot_the_num(X, Y, ca):
@@ -29,12 +30,12 @@ def convert_to_one_of_many(Y):
     # or one output per label
     rows, cols = Y.shape
     classes = unique(Y).size  # should get 10 classes
-    newY = zeros((rows, classes))
+    new_y = zeros((rows, classes))
 
     for i in range(0, rows):
-        newY[i, Y[i]] = 1
+        new_y[i, Y[i]] = 1
 
-    return newY
+    return new_y
 
 
 # load the MNIST data
@@ -42,6 +43,7 @@ digits = io.loadmat('data_mnist.mat')
 
 # making X and Y numpy arrays
 X = digits['X']
+
 Y = digits['y']
 
 Y[Y == 10] = 0  # 0 has the 10th position, this line gives it the 0th position
@@ -116,7 +118,7 @@ else:
     net.sortModules()
 
 test_index = randint(0, X.shape[0])
-test_input = X[test_index, :]
+test_input = X[test_index]
 
 testv = (Y[test_index][0])
 print  testv
@@ -126,7 +128,7 @@ print("Number to predict is", Y[test_index][0])
 real_train = train_data['target'].argmax(axis=1)
 real_test = test_data['target'].argmax(axis=1)
 
-EPOCHS = 500
+EPOCHS = 5
 
 trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3, learningrate=0.01, verbose=False)
 
@@ -143,6 +145,7 @@ for i in range(EPOCHS):
     testResult = percentError(outputTest, real_test)
 
     print('training set accuracy:', 100 - trainResult, 'test set accuracy:', 100 - testResult)
+
 
 prediction = net.activate(test_input)
 # returns the index of the highest value down the columns
