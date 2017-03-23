@@ -8,12 +8,10 @@ from pybrain.tools.xml import NetworkReader
 from pybrain.utilities import percentError
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.datasets import ClassificationDataSet
-
 from pylab import imshow
-from scipy import io, ndimage
+from scipy import io
 from numpy import *
 import os
-
 from PIL import Image
 import numpy as np
 
@@ -169,7 +167,7 @@ for i in range(EPOCHS):
 
     finalTrainRes = 100-trainResult
     finalTestRes = 100-testResult
-    print('Epoch: ', i, 'training set accuracy:', finalTrainRes, 'test set accuracy:', finalTestRes)
+    print 'Epoch: ' + str(i) + '\tTraining set accuracy: ' + str(finalTrainRes) + '\tTest set accuracy: ' + str(finalTestRes)
 
     trainResultArr.append((finalTestRes))
     testResultArr.append((finalTrainRes))
@@ -184,9 +182,12 @@ p = argmax(prediction, axis=0)
 NetworkWriter.writeToFile(net, 'dig.xml')
 
 # plotData(X[:, 0:sizeOfExample-1], Y, randomIndex)
+
 print("predicted output after training is", p)
 
 plt.plot(epochs,trainResultArr)
 plt.plot(epochs,testResultArr)
-
+plt.title('Training Result vs Test Result of ANN')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy %')
 plt.show()
