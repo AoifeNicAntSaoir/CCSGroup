@@ -1,6 +1,5 @@
-import os
 from random import randint, shuffle
-import matplotlib.pyplot as plt
+
 from numpy import *
 from pybrain.datasets import ClassificationDataSet
 from pybrain.structure import SigmoidLayer, SoftmaxLayer
@@ -9,20 +8,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.tools.xml import NetworkReader
 from pybrain.tools.xml import NetworkWriter
 from pybrain.utilities import percentError
-from pylab import imshow
 from scipy import io
-import scipy
-
-
-def plot_the_num(X, Y, ca):
-    # plots the given image
-    # the image matrix is transposed
-    # color set to grey
-    input_image = X[ca, :]
-    imshow((input_image.reshape(20, 20)).T, cmap='Greys')
-
-    # plot the same output case
-    print('the digit printed is', Y[ca][0])
 
 
 def convert_to_one_of_many(Y):
@@ -50,14 +36,10 @@ Y[Y == 10] = 0  # 0 has the 10th position, this line gives it the 0th position
 
 num_of_labels = unique(Y).size  # gets your 10 labels/outputs
 
-print('show a random number from the MNIST database')
-random_ind = randint(0, X.shape[0])  # gets a random number between 0 and the size of the X array
-plot_the_num(X, Y, random_ind)
-plt.show()
 
 # build the dataset
 
-X = c_[ones(X.shape[0]), X]
+# X = c_[ones(X.shape[0]), X]
 
 num_of_examples, size_of_example = X.shape
 # convert the test data to one of many (10)
@@ -65,8 +47,8 @@ Y = convert_to_one_of_many(Y)
 
 # separating training and test data sets
 
-X1 = hstack((X, Y)) # puts into a single one dimensional array
-shuffle(X1) # shuffles the data
+X1 = hstack((X, Y))  # puts into a single one dimensional array
+shuffle(X1)  # shuffles the data
 
 X = X1[:, 0:size_of_example]
 Y = X1[:, size_of_example: X1.shape[1]]
@@ -90,7 +72,7 @@ for i in range(0, data_split):
 train_data.setField('input', X[0:data_split, :])
 train_data.setField('target', Y[0:data_split, :])
 
-#print train_data.getField(X[0:cutoff, :])
+# print train_data.getField(X[0:cutoff, :])
 
 for i in range(data_split, num_of_examples):
     test_data.addSample(X[i, :], Y[i, :])
@@ -111,7 +93,7 @@ if os.path.isfile('dig.xml'):
     net.sortModules()
 else:
 
-    net = buildNetwork(size_of_example, size_of_example / 2, num_of_labels, hiddenclass=SigmoidLayer,
+    net = buildNetwork(size_of_example, 250, num_of_labels, hiddenclass=SigmoidLayer,
                        outclass=SoftmaxLayer)
 
     # net.sorted = False
@@ -120,17 +102,13 @@ else:
 test_index = randint(0, X.shape[0])
 test_input = X[test_index]
 
-testv = (Y[test_index][0])
-print  testv
-
-print("Number to predict is", Y[test_index][0])
 
 real_train = train_data['target'].argmax(axis=1)
 real_test = test_data['target'].argmax(axis=1)
 
-EPOCHS = 5
+EPOCHS = 14
 
-trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3, learningrate=0.01, verbose=False)
+trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3, learningrate=0.06, verbose=False)
 
 for i in range(EPOCHS):
     # set the epochs
