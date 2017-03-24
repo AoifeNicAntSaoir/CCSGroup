@@ -1,19 +1,13 @@
-import os
-import sys
+import matplotlib.pyplot as plt
+from PIL import Image
 from numpy import *
+from pybrain.tools.xml import NetworkReader
 from scipy import io
 from scipy import ndimage
-import matplotlib.pyplot as plt
-from pybrain.structure import *
-from pybrain.datasets import SupervisedDataSet
-from pybrain.utilities import percentError
-from pybrain.supervised.trainers import BackpropTrainer
-from pybrain.tools.xml import NetworkReader
-from PIL import Image
 
 
 def plotData(image):
-    '''plots the input data '''
+    # plots the input data '''
     # the image matrix will have to be transposed to be viewed correcty
     # cmap shows the color map
     plt.imshow(image.T, cmap='Greys')
@@ -44,7 +38,7 @@ im1 = asarray(imA, dtype="float")
 im1 = ndimage.grey_dilation(im1, size=(5, 5))
 
 im1 = Image.fromarray(im1)
-box = (im1).getbbox()
+box = im1.getbbox()
 im2 = im1.crop(box)
 
 
