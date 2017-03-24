@@ -16,7 +16,12 @@ from numpy import *
 import os
 from PIL import Image
 import numpy as np
-
+from sklearn.metrics import mean_squared_error
+from skimage.measure import compare_ssim, compare_mse, compare_nrmse, compare_psnr, correct_mesh_orientation
+#mean squared error, structural similarity equation, peak signal noise ratio
+def getStatistics(x,y):
+    print "Mean Squared Error calculation: " + str(mean_squared_error(x,y))
+    print "Structural Similarity Index calculation: " + str(compare_ssim(x,y))
 def plotTheNum(X, Y, ca):
     # plots the given image
     # the image matrix is transposed
@@ -25,8 +30,11 @@ def plotTheNum(X, Y, ca):
     #imshow((inputImage.reshape(20, 20)).T, cmap='Greys')
     # plot the same output case
     print('the digit printed is', Y[ca][0])
-
-
+"""
+def getStats(x, y):
+    print mean_squared_error(x,y)
+    print compare_ssim(x, y)
+"""
 def convertToOneOfMany(Y):
     # converts Y to one of many types
     # or one output per label
@@ -149,7 +157,7 @@ for i in range(EPOCHS):
    # if finalTrainRes >= 100 or finalTestRes >= 100:
     #    break
 
-
+#print testInput
 prediction = net.activate(testInput)
 p = argmax(prediction, axis=0)
 
@@ -158,6 +166,8 @@ NetworkWriter.writeToFile(net, 'dig.xml')
 # plotData(X[:, 0:sizeOfExample-1], Y, randomIndex)
 
 print("predicted output after training is", p)
+#getStats(p,(Y[testIndex]))
+#getStats(p,3)
 
 plt.plot(epochs,trainResultArr)
 plt.plot(epochs,testResultArr)
