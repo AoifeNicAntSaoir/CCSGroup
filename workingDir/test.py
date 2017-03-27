@@ -1,43 +1,5 @@
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.datasets import SupervisedDataSet
-from pybrain.supervised.trainers import BackpropTrainer
-from sklearn.datasets import fetch_mldata
-import numpy as np
-from PIL import Image
-
-myImg = Image.open("images/1.png")
-ig = np.array(myImg)
-
-
-digits = fetch_mldata("MNIST original")
-X = digits.data
-
-
-
-images = digits.data[0].flatten()
-
-print images
-lenImg =  len(images)
-
-print digits.keys()
-print digits.data
-print digits.target
-print digits
-
-
-net = buildNetwork(lenImg,5,2)
-
-net.activate([1,1,0])
-
-ds = SupervisedDataSet(3,2)
-ds.addSample((0,0,0),(0))
-ds.addSample((0,0,1),(0))
-ds.addSample((0,1,0),(1))
-ds.addSample((1,0,0),(0))
-ds.addSample((0,1,1),(1))
-
-trainer = BackpropTrainer(net, ds)
-#trainer.trainUntilConvergence()
-
-value = trainer.train()
-print value
+import cv2
+im_gray = cv2.imread('images/blue.png', cv2.IMREAD_GRAYSCALE)
+thresh = 127
+im_bw = cv2.threshold(im_gray, thresh, 255, cv2.THRESH_BINARY)[1]
+cv2.imwrite('images/blackwhite.png', im_bw)

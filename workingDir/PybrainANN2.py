@@ -1,52 +1,31 @@
-import os
 from random import randint, shuffle
-import matplotlib.pyplot as plt
+import os
+from numpy import *
 from pybrain.datasets import ClassificationDataSet
-from pybrain.structure import LinearLayer, SigmoidLayer, SoftmaxLayer
+from pybrain.structure import SigmoidLayer, SoftmaxLayer
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.tools.shortcuts import buildNetwork
-from pybrain.structure import FeedForwardNetwork, FullConnection
-from pybrain.tools.xml import NetworkWriter
 from pybrain.tools.xml import NetworkReader
+from pybrain.tools.xml import NetworkWriter
 from pybrain.utilities import percentError
-from pylab import imshow
 from scipy import io
-import scipy
-from numpy import *
-import os
-from PIL import Image
-import numpy as np
-from sklearn.metrics import mean_squared_error
-from skimage.measure import compare_ssim, compare_mse, compare_nrmse, compare_psnr, correct_mesh_orientation
-#mean squared error, structural similarity equation, peak signal noise ratio
-def getStatistics(x,y):
-    print "Mean Squared Error calculation: " + str(mean_squared_error(x,y))
-    print "Structural Similarity Index calculation: " + str(compare_ssim(x,y))
-def plotTheNum(X, Y, ca):
-    # plots the given image
-    # the image matrix is transposed
-    # color set to grey
-    inputImage = X[ca, :]
-    #imshow((inputImage.reshape(20, 20)).T, cmap='Greys')
-    # plot the same output case
-    print('the digit printed is', Y[ca][0])
-"""
-def getStats(x, y):
-    print mean_squared_error(x,y)
-    print compare_ssim(x, y)
-"""
-def convertToOneOfMany(Y):
-    # converts Y to one of many types
-    # or one output per label
-    rows, cols = Y.shape
-    classes = unique(Y).size  # should get 10 classes
-    newY = zeros((rows, classes))
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as pl2
 
-    for i in range(0, rows):
-        newY[i, Y[i]] = 1
+def convert_to_one_of_many(Y):
+	# converts Y to one of many types
+	# or one output per label
+	rows, cols = Y.shape
+	classes = unique(Y).size  # should get 10 classes
+	new_y = zeros((rows, classes))
 
-    return newY  # load the MNIST data
+	for i in range(0, rows):
+		new_y[i, Y[i]] = 1
 
+	return new_y
+
+
+# load the MNIST data
 digits = io.loadmat('ex4data1.mat')
 
 # making X and Y numpy arrays
@@ -55,123 +34,96 @@ Y = digits['y']
 
 Y[Y == 10] = 0  # 0 has the 10th position, this line gives it the 0th position
 
-numOfLabels = unique(Y).size  # gets your 10 labels
-
-print('show a random number from the MNIST database')
-randomInd = randint(0, X.shape[0])  # gets a random number between 0 and the size of the X array
-plotTheNum(X, Y, randomInd)
-#plt.show()
+num_of_labels = unique(Y).size  # gets your 10 labels/outputs
 
 # build the dataset
-X = c_[ones(X.shape[0]), X]
 
-
-numOfExamples, sizeOfExample = X.shape
+num_of_examples, size_of_example = X.shape
 # convert the test data to one of many (10)
-Y = convertToOneOfMany(Y)
+Y = convert_to_one_of_many(Y)
 
-# seperating training and test datasets
+# separating training and test data sets
 
-X1 = hstack((X, Y)) # puts into a 1D array
-shuffle(X1) # shuffled array
+X1 = hstack((X, Y))  # puts into a single one dimensional array
+shuffle(X1)  # shuffles the data
 
-X = X1[:, 0:sizeOfExample]
-Y = X1[:, sizeOfExample: X1.shape[1]]
+X = X1[:, 0:size_of_example]
+Y = X1[:, size_of_example: X1.shape[1]]
 
 # add the contents of digits to a dataset
-#daSet = ClassificationDataSet(sizeOfExample, numOfLabels)
-#for k in xrange(len(X)):
-#    daSet.addSample(X.ravel()[k], Y.ravel()[k])
 
-#testData, trainData = daSet.splitWithProportion(0.25)
+train_data = ClassificationDataSet(size_of_example, num_of_labels)
+test_data = ClassificationDataSet(size_of_example, num_of_labels)
 
-trainData = ClassificationDataSet(sizeOfExample, numOfLabels)
-testData = ClassificationDataSet(sizeOfExample, numOfLabels)
+data_split = int(num_of_examples * 0.7)
 
-dataSplit = int(numOfExamples * 0.7)
-
-
-for i in range(0, dataSplit):
-   trainData.addSample(X[i,:], Y[i,:])
+for i in range(0, data_split):
+	train_data.addSample(X[i, :], Y[i, :])
 
 # setting the field names
-trainData.setField('input', X[0:dataSplit, :])
-trainData.setField('target', Y[0:dataSplit, :])
+train_data.setField('input', X[0:data_split, :])
+train_data.setField('target', Y[0:data_split, :])
 
-for i in range(dataSplit, numOfExamples):
-    testData.addSample(X[i, :], Y[i, :])
+for i in range(data_split, num_of_examples):
+	test_data.addSample(X[i, :], Y[i, :])
 
-testData.setField('input', X[dataSplit:numOfExamples, :])
-testData.setField('target', Y[dataSplit:numOfExamples, :])
+test_data.setField('input', X[data_split:num_of_examples, :])
+test_data.setField('target', Y[data_split:num_of_examples, :])
 
-if os.path.isfile('dig.xml'):
-    net = NetworkReader.readFrom('dig.xml')
-    net.sorted = False
-    net.sortModules()
+if os.path.isfile('dig1.xml'):
+	net = NetworkReader.readFrom('dig1.xml')
+
 else:
-    net = buildNetwork(sizeOfExample, sizeOfExample / 2, numOfLabels, hiddenclass=SigmoidLayer,
-                       outclass=SoftmaxLayer)
-   # net.sorted = False
-    net.sortModules()
+	net = buildNetwork(size_of_example, 250, num_of_labels, hiddenclass=SigmoidLayer,
+					   outclass=SoftmaxLayer)
 
+net.sortModules()
 
+test_index = randint(0, X.shape[0])
+test_input = X[test_index]
 
-testIndex = randint(0, X.shape[0])
-testInput = X[testIndex]
-testv = (Y[testIndex])
-print testv
+real_train = train_data['target'].argmax(axis=1)
+real_test = test_data['target'].argmax(axis=1)
 
-print("Number to predict is", Y[testIndex][0])
+EPOCHS = 20
 
-realTrain = trainData['target'].argmax(axis=1)
-realTest = testData['target'].argmax(axis=1)
-
-EPOCHS = 5
-
-trainer = BackpropTrainer(net, dataset=trainData, momentum=0.3, learningrate=0.01,verbose=False)
-
+trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3, learningrate=0.04, verbose=False)
 
 trainResultArr = []
 epochs =  []
 testResultArr = []
 
 for i in range(EPOCHS):
-    # set the epochs
-    trainer.trainEpochs(1)
+	# set the epochs
+	trainer.trainEpochs(1)
 
-    outputTrain = net.activateOnDataset(trainData)
-    outputTrain = outputTrain.argmax(axis=1)
-    trainResult = percentError(outputTrain, realTrain)
+	outputTrain = net.activateOnDataset(train_data)
+	outputTrain = outputTrain.argmax(axis=1)
+	trainResult = percentError(outputTrain, real_train)
 
-    outputTest = net.activateOnDataset(testData)
-    outputTest = outputTest.argmax(axis=1)
-    testResult = percentError(outputTest, realTest)
+	outputTest = net.activateOnDataset(test_data)
+	outputTest = outputTest.argmax(axis=1)
+	testResult = percentError(outputTest, real_test)
 
-    finalTrainRes = 100-trainResult
-    finalTestRes = 100-testResult
-    print 'Epoch: ' + str(i) + '\tTraining set accuracy: ' + str(finalTrainRes) + '\tTest set accuracy: ' + str(finalTestRes)
+	finalTrainResult = 100 - trainResult
+	finalTestResult = 100 - testResult
 
-    trainResultArr.append((finalTestRes))
-    testResultArr.append((finalTrainRes))
-    epochs.append((i))
-   # if finalTrainRes >= 100 or finalTestRes >= 100:
-    #    break
+	print "Epoch: " + str(i) + "\tTraining set accuracy: " +  str(finalTrainResult) + "\tTest set accuracy:" + str(finalTestResult)
 
-#print testInput
-prediction = net.activate(testInput)
+	trainResultArr.append((finalTestResult))
+	testResultArr.append((finalTrainResult))
+	epochs.append((i))
+
+prediction = net.activate(test_input)
+# returns the index of the highest value down the columns
 p = argmax(prediction, axis=0)
 
-NetworkWriter.writeToFile(net, 'dig.xml')
-
-# plotData(X[:, 0:sizeOfExample-1], Y, randomIndex)
-
-print("predicted output after training is", p)
-#getStats(p,(Y[testIndex]))
-#getStats(p,3)
+NetworkWriter.writeToFile(net, 'dig1.xml')
 
 plt.plot(epochs,trainResultArr)
 plt.plot(epochs,testResultArr)
 plt.title('Training Result (Orange) vs Test Result of ANN (Blue)')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy %')
+
 plt.show()
