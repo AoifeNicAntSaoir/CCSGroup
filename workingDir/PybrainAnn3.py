@@ -52,6 +52,7 @@ num_of_examples, size_of_example = X.shape
 # convert the test data to one of many (10)
 Y = convert_to_one_of_many(Y)
 
+
 # separating training and test data sets
 
 X1 = hstack((X, Y))  # puts into a single one dimensional array
@@ -95,7 +96,7 @@ test_input = X[test_index]
 real_train = train_data['target'].argmax(axis=1)
 real_test = test_data['target'].argmax(axis=1)
 
-EPOCHS = 20
+EPOCHS = 5
 
 trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3, learningrate=0.04, verbose=False)
 

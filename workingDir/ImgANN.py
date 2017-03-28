@@ -5,6 +5,8 @@ from pybrain.tools.xml import NetworkReader
 from scipy import io
 from scipy import ndimage
 from sklearn.metrics import mean_squared_error
+from skimage.measure import structural_similarity, compare_ssim
+import numpy
 
 
 
@@ -21,10 +23,9 @@ def getStatistics(x,y):
     for j in range(len(Y)):
         if (Y[j] == p):
             predMSE.append(((mean_squared_error(X[j], X1)), j))  # mse val and index
-            # print compare_ssim(X[j], X1)
-    print "Mean Squared Error calculation: " + str(min(predMSE)) # Closer to 0, the better
+#            print compare_ssim(X[j], X1)
+    print "Mean Squared Error calculation & index in the dataset: " + str(min(predMSE)) # Closer to 0, the better
     #print "Structural Similarity Index calculation: " + str(compare_ssim(x,y))
-
 
 # load data
 data = io.loadmat('ex4data1.mat')

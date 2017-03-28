@@ -1,7 +1,7 @@
 import os
 from random import randint, shuffle
-import matplotlib.pyplot as plt2
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as pl2
 from numpy import *
 from pybrain.datasets import ClassificationDataSet
 from pybrain.structure import SigmoidLayer, SoftmaxLayer
@@ -14,23 +14,44 @@ from scipy import io
 from pybrain.supervised.trainers import BackpropTrainer
 from PIL import Image
 from scipy import io, ndimage
+from sklearn.metrics import mean_squared_error
 
 
 def plotData(image):
     '''plots the input data '''
     # the image matrix will have to be transposed to be viewed correcty
     # cmap shows the color map
-    plt2.imshow(image.T, cmap='Greys')
-    plt2.show()
+    plt.imshow(image.T, cmap='Greys')
+    plt.show()
+
+def convert_to_one_of_many(Y):
+    # converts Y to one of many types
+    # or one output per label
+    rows, cols = Y.shape
+    classes = unique(Y).size  # should get 10 classes
+    newY = zeros((rows, classes))
+
+    for i in range(0, rows):
+        newY[i, Y[i]] = 1
+
+    return newY
+
+def getStatistics(x,y):
+    predMSE = []
+    predSSIM = []
+    for j in range(len(Y)):
+        if (Y[j] == p):
+            predMSE.append(((mean_squared_error(X[j], X1)), j))  # mse val and index
+#            print compare_ssim(X[j], X1)
+    print "Mean Squared Error calculation & index in the dataset: " + str(min(predMSE)) # Closer to 0, the better
+    #print "Structural Similarity Index calculation: " + str(compare_ssim(x,y))
 
 
 # load data
 data = io.loadmat('ex4data1.mat')
-size = (20, 20)
 
 X = data['X']
 Y = data['y']
-
 
 Y[Y == 10] = 0  # 0 has the 10th position, this line gives it the 0th position
 
@@ -47,38 +68,21 @@ else:
 # transform pixel values from 0 to 1 and invert and convert to PIL image
 imA = (imA - amin(imA)) / (amax(imA) - amin(imA))
 imA = 1 - imA
-
 im1 = asarray(imA, dtype="float")
 im1 = ndimage.grey_dilation(im1, size=(5, 5))
-
 im1 = Image.fromarray(im1)
 box = (im1).getbbox()
 im2 = im1.crop(box)
-
-
-im3 = im2.resize(size)
+im3 = im2.resize((20,20))
 im3 = asarray(im3, dtype="float")
-
 im3 = 1 - im3.T
 im3 = uint8(im3)
 plotData(im3)
 
 # build the dataset
 num_of_examples, size_of_example = X.shape
+
 # convert the test data to one of many (10)
-
-def convert_to_one_of_many(Y):
-    # converts Y to one of many types
-    # or one output per label
-    rows, cols = Y.shape
-    classes = unique(Y).size  # should get 10 classes
-    newY = zeros((rows, classes))
-
-    for i in range(0, rows):
-        newY[i, Y[i]] = 1
-
-    return newY
-
 Y = convert_to_one_of_many(Y)
 
 # separating training and test data sets
@@ -97,7 +101,6 @@ test_data, train_data = dSet.splitWithProportion(0.3)
 
 train_data._convertToOneOfMany()
 test_data._convertToOneOfMany()
-
 data_split = int(num_of_examples * 0.7)
 
 # setting the field names
@@ -113,8 +116,8 @@ test_data.setField('input', X[data_split:num_of_examples, :])
 test_data.setField('target', Y[data_split:num_of_examples, :])
 
 
-if os.path.isfile('dig2.xml'):
-    net = NetworkReader.readFrom('dig2.xml')
+if os.path.isfile('dig_img_from_dir.xml'):
+    net = NetworkReader.readFrom('dig_img_from_dir.xml')
     net.sorted = False
     net.sortModules()
 else:
@@ -139,27 +142,41 @@ epochs =  []
 testResultArr = []
 
 for i in range(EPOCHS):
-    # set the epochs
-    trainer.trainEpochs(1)
+	# set the epochs
+	trainer.trainEpochs(1)
 
-    outputTrain = net.activateOnDataset(train_data)
-    outputTrain = outputTrain.argmax(axis=1)
-    trainResult = percentError(outputTrain, real_train)
+	outputTrain = net.activateOnDataset(train_data)
+	outputTrain = outputTrain.argmax(axis=1)
+	trainResult = percentError(outputTrain, real_train)
 
-    outputTest = net.activateOnDataset(test_data)
-    outputTest = outputTest.argmax(axis=1)
-    testResult = percentError(outputTest, real_test)
-    print('training set accuracy:', 100 - trainResult, 'test set accuracy:', 100 - testResult)
+	outputTest = net.activateOnDataset(test_data)
+	outputTest = outputTest.argmax(axis=1)
+	testResult = percentError(outputTest, real_test)
+
+	finalTrainResult = 100 - trainResult
+	finalTestResult = 100 - testResult
+
+	print "Epoch: " + str(i) + "\tTraining set accuracy: " +  str(finalTrainResult) + "\tTest set accuracy: " + str(finalTestResult)
+	#getStatistics(	)
+
+	trainResultArr.append((finalTestResult))
+	testResultArr.append((finalTrainResult))
+	epochs.append((i))
 
 
 X1 = im3.reshape((X.shape[1]))
 prediction = net.activate(X1)
 # returns the index of the highest value down the columns
 p = argmax(prediction, axis=0)
-NetworkWriter.writeToFile(net, 'dig2.xml')
+NetworkWriter.writeToFile(net, 'dig_img_from_dir.xml')
 
 # plotData(X[:, 0:sizeOfExample-1], Y, randomIndex)
-print("predicted output after training is", p)
+print "predicted output after training is " + str(p)
+predMSE = []
+for i in range(len(Y)):
+    if (Y[i] == int(p)):
+        predMSE.append(((mean_squared_error(X[i], X1)), i))  # mse val and index
+print str(min(predMSE)) # Closer to 0, the better
 
 plt.plot(epochs,trainResultArr)
 plt.plot(epochs,testResultArr)
