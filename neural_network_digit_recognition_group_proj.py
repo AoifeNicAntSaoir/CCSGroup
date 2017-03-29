@@ -9,6 +9,16 @@ from pybrain.tools.xml import NetworkReader
 from pybrain.tools.xml import NetworkWriter
 from pybrain.utilities import percentError
 from scipy import io
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as pl2
+
+def plotData(image):
+    # plots the input data '''
+    # the image matrix will have to be transposed to be viewed correcty
+    # cmap shows the color map
+    plt.imshow(image.T, cmap='Greys')
+    plt.show()
+
 
 
 def convert_to_one_of_many(Y):
@@ -26,6 +36,8 @@ def convert_to_one_of_many(Y):
 
 # load the MNIST data
 digits = io.loadmat('data_mnist.mat')
+
+
 
 # making X and Y numpy arrays
 X = digits['X']
@@ -54,7 +66,7 @@ Y = X1[:, size_of_example: X1.shape[1]]
 train_data = ClassificationDataSet(size_of_example, num_of_labels)
 test_data = ClassificationDataSet(size_of_example, num_of_labels)
 
-data_split = int(num_of_examples * 0.7)
+data_split = int(num_of_examples * 0.66)
 
 for i in range(0, data_split):
 	train_data.addSample(X[i, :], Y[i, :])
@@ -70,10 +82,10 @@ test_data.setField('input', X[data_split:num_of_examples, :])
 test_data.setField('target', Y[data_split:num_of_examples, :])
 
 if os.path.isfile('dig.xml'):
-	net = NetworkReader.readFrom('dig.xml')
+	net = NetworkReader.readFrom('dig1.xml')
 
 else:
-	net = buildNetwork(size_of_example, 250, num_of_labels, hiddenclass=SigmoidLayer,
+	net = buildNetwork(size_of_example, 185, num_of_labels, hiddenclass=SigmoidLayer,
 					   outclass=SoftmaxLayer)
 
 net.sortModules()
@@ -86,7 +98,11 @@ real_test = test_data['target'].argmax(axis=1)
 
 EPOCHS = 100
 
-trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3, learningrate=0.04, verbose=False)
+trainer = BackpropTrainer(net, dataset=train_data, momentum=0.4,learningrate=0.01, verbose=False)
+
+trainResultArr = []
+epochs =  []
+testResultArr = []
 
 for i in range(EPOCHS):
 	# set the epochs
@@ -100,12 +116,26 @@ for i in range(EPOCHS):
 	outputTest = outputTest.argmax(axis=1)
 	testResult = percentError(outputTest, real_test)
 
-	print('training set accuracy:', 100 - trainResult, 'test set accuracy:', 100 - testResult)
+	finalTrainResult = 100 - trainResult
+	finalTestResult = 100 - testResult
 
+	print "Epoch: " + str(i + 1) + "\tTraining set accuracy: " +  str(finalTrainResult) + "\tTest set accuracy: " + str(finalTestResult)
+	#getStatistics(	)
 
+	trainResultArr.append((finalTestResult))
+	testResultArr.append((finalTrainResult))
+	epochs.append((i))
 
 prediction = net.activate(test_input)
 # returns the index of the highest value down the columns
 p = argmax(prediction, axis=0)
 
 NetworkWriter.writeToFile(net, 'dig.xml')
+
+plt.plot(epochs,trainResultArr)
+plt.plot(epochs,testResultArr)
+plt.title('Training Result (Orange) vs Test Result of ANN (Blue)')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy %')
+
+plt.show()
