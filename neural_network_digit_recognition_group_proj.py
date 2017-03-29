@@ -66,7 +66,7 @@ Y = X1[:, size_of_example: X1.shape[1]]
 train_data = ClassificationDataSet(size_of_example, num_of_labels)
 test_data = ClassificationDataSet(size_of_example, num_of_labels)
 
-data_split = int(num_of_examples * 0.66)
+data_split = int(num_of_examples * 0.9)
 
 for i in range(0, data_split):
 	train_data.addSample(X[i, :], Y[i, :])
@@ -82,7 +82,7 @@ test_data.setField('input', X[data_split:num_of_examples, :])
 test_data.setField('target', Y[data_split:num_of_examples, :])
 
 if os.path.isfile('dig.xml'):
-	net = NetworkReader.readFrom('dig1.xml')
+	net = NetworkReader.readFrom('dig.xml')
 
 else:
 	net = buildNetwork(size_of_example, 185, num_of_labels, hiddenclass=SigmoidLayer,
@@ -96,9 +96,9 @@ test_input = X[test_index]
 real_train = train_data['target'].argmax(axis=1)
 real_test = test_data['target'].argmax(axis=1)
 
-EPOCHS = 100
+EPOCHS = 20
 
-trainer = BackpropTrainer(net, dataset=train_data, momentum=0.4,learningrate=0.01, verbose=False)
+trainer = BackpropTrainer(net, dataset=train_data, momentum=0.3,learningrate=0.01, verbose=False)
 
 trainResultArr = []
 epochs =  []
