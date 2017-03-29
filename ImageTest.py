@@ -1,62 +1,31 @@
 import matplotlib.pyplot as plt
-from PIL import Image
 from numpy import *
 from pybrain.tools.xml import NetworkReader
 from scipy import io
-from scipy import ndimage
-
-
-def plotData(image):
-    # plots the input data '''
-    # the image matrix will have to be transposed to be viewed correcty
-    # cmap shows the color map
-    plt.imshow(image.T, cmap='Greys')
-    plt.show()
-
 
 # load data
-data = io.loadmat('data_mnist.mat')
-size = (20, 20)
+data = io.loadmat('data_mnist.mat')  # load the data
 
 X = data['X']
-Y = data['y']
+Y = data['y']  # split to x and y
 
-# read test image
-im = Image.open("img1.png")
+c = random.randint(0, X.shape[0])  # get random index
 
-# convert to numpy array
-if (len(shape(im)) == 3):
-    imA = asarray(im, dtype="float")[:, :, 1]
-else:
-    imA = asarray(im, dtype="float")
-
-# transform pixel values from 0 to 1 and invert and convert to PIL image
-imA = (imA - amin(imA)) / (amax(imA) - amin(imA))
-imA = 1 - imA
-
-im1 = asarray(imA, dtype="float")
-im1 = ndimage.grey_dilation(im1, size=(5, 5))
-
-im1 = Image.fromarray(im1)
-box = im1.getbbox()
-im2 = im1.crop(box)
+c2 = X[c, :] #  get the data stored at that index
 
 
-im3 = im2.resize(size)
-im3 = asarray(im3, dtype="float")
+#  show the in a graph
+m, n = shape(X)
+image = array(X[c, 0:n])
+plt.imshow((image.reshape(20, 20)).T, cmap='Greys')
+plt.show()
 
-im3 = 1 - im3.T
-im3 = uint8(im3)
-plotData(im3)
+# read the saved network from the file
+net = NetworkReader.readFrom('test_temp.xml')
 
-
-
-X1 = im3.reshape((X.shape[1]))
-
-
-net = NetworkReader.readFrom('dig.xml')
-prediction = net.activate(X1)
-
+# pass the test image through the neural net
+prediction = net.activate(c2)
+# get the value with the highest probability
 p = argmax(prediction, axis=0)
 print(prediction)
 print("predicted output is \t" + str(p))
