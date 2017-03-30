@@ -6,6 +6,7 @@ Have no issue for choosing a proper number of parameters
 Are less prone to overfitting
 Needs less memory to store the predictive model
 Yield more readable results and a geometrical interpretation
+Multi-layer Perceptron classifier.
 """
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
