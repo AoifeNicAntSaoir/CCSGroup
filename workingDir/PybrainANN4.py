@@ -64,7 +64,6 @@ if (len(shape(im)) == 3):
 else:
     imA = asarray(im, dtype="float")
 
-print imA
 
 # transform pixel values from 0 to 1 and invert and convert to PIL image
 imA = (imA - amin(imA)) / (amax(imA) - amin(imA))
@@ -187,6 +186,7 @@ plt.plot(epochs,testResultArr)
 plt.title('Training Result (Orange) vs Test Result of ANN (Blue)')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy %')
+plt.legend(['Training Result', 'Test Result'])
 
 plt.show()
 

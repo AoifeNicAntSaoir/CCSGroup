@@ -1,7 +1,9 @@
-from sklearn.cross_validation import train_test_split
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from sklearn import datasets
 from nolearn.dbn import DBN
+from nolearn.dbn import *
+
 import numpy as np
 import cv2
 

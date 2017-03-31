@@ -1,7 +1,7 @@
 import numpy as np
-from sklearn.datasets import fetch_mldata, load_digits
-from sklearn import metrics
-from sklearn.model_selection import train_test_split
+from sklearn.datasets import fetch_mldata
+import cPickle
+import gzip
 
 
 def nonlin(x, deriv=False):
@@ -10,20 +10,23 @@ def nonlin(x, deriv=False):
 
     return 1 / (1 + np.exp(-x))
 
-digits = load_digits()
 
-Xtrain, Xtest, Ytrain, Ytest = train_test_split(digits.data.astype(np.float64), digits.target.astype(np.float64), test_size=0.4, train_size=0.6)
+mnist = fetch_mldata("MNIST Original")
+digits = np.array(mnist.data)
+labels = np.array(mnist.target)
 
-a = mnist.data
+print digits.shape
+print labels.shape
 
-inarr = np.array(a)
-outArr = np.array(mnist.target)
+X = np.array((digits, labels))
 
-
-
-X = np.array(mnist.data)
-print X.shape
-np.reshape(inarr).reshape((10000,10000))
+f = gzip.open('mnist.pkl.gz', 'rb')
+training_data, validation_data, test_data = cPickle.load(f)
+f.close()
+X = np.array([[0, 0, 1],
+              [0, 1, 1],
+              [1, 0, 1],
+              [1, 1, 1]])
 
 y = np.array([[0],
               [1],
@@ -33,7 +36,7 @@ y = np.array([[0],
 np.random.seed(1)
 
 # randomly initialize our weights with mean 0
-syn0 = 2 * np.random.random((3,4)) - 1
+syn0 = 2 * np.random.random((3, 4)) - 1
 syn1 = 2 * np.random.random((4, 1)) - 1
 
 for j in xrange(60000):

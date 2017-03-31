@@ -32,3 +32,4 @@ predicted = model.predict(Xtest)
 print(metrics.classification_report(expected, predicted))
 print(metrics.confusion_matrix(expected, predicted))
 
+3.59 * 4.7

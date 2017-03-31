@@ -18,7 +18,7 @@ digits = datasets.load_digits()
 
 clf = MLPClassifier(solver='lbfgs', alpha=1e-5,
                        hidden_layer_sizes=(5, 2), random_state=1)
-#clf = svm.SVC(gamma=0.0001, C=100)
+clf = svm.SVC(gamma=0.0001, C=100)
 
 print(len(digits.data))
 
