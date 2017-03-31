@@ -137,5 +137,6 @@ plt.plot(epochs,testResultArr)
 plt.title('Training Result (Orange) vs Test Result of ANN (Blue)')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy %')
+plt.legend(['Training Result', 'Test Result'])
 
 plt.show()
