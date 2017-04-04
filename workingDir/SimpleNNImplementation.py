@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.datasets import fetch_mldata
 import cPickle
 import gzip
+from random import randint, shuffle
+from numpy import *
 
 
 def nonlin(x, deriv=False):
@@ -10,7 +12,6 @@ def nonlin(x, deriv=False):
 
     return 1 / (1 + np.exp(-x))
 
-
 mnist = fetch_mldata("MNIST Original")
 digits = np.array(mnist.data)
 labels = np.array(mnist.target)
@@ -18,20 +19,18 @@ labels = np.array(mnist.target)
 print digits.shape
 print labels.shape
 
-X = np.array((digits, labels))
+X = np.array((digits))
+Y = np.array((labels))
 
-f = gzip.open('mnist.pkl.gz', 'rb')
-training_data, validation_data, test_data = cPickle.load(f)
-f.close()
-X = np.array([[0, 0, 1],
-              [0, 1, 1],
-              [1, 0, 1],
-              [1, 1, 1]])
+num_of_examples, size_of_example = X.shape
 
-y = np.array([[0],
-              [1],
-              [1],
-              [0]])
+X1 = hstack(X) # puts into a single one dimensional array
+shuffle(X1) # shuffles the data
+
+X = X1[:, 0:size_of_example]
+Y = X1[:, size_of_example: X1.shape[1]]
+
+
 
 np.random.seed(1)
 
@@ -47,7 +46,7 @@ for j in xrange(60000):
     l2 = nonlin(np.dot(l1, syn1))
 
     # how much did we miss the target value?
-    l2_error = y - l2
+    l2_error = Y - l2
 
     if (j % 10000) == 0:
         print "Error:" + str(np.mean(np.abs(l2_error)))
